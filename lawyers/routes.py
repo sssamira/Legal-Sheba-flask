@@ -7,10 +7,7 @@ from decorators import role_required
 lawyers_bp = Blueprint('lawyers', __name__, url_prefix='/lawyers')
 
 
-# -------------------------
-# Search / List Lawyers
-#   GET /lawyers?location=...&specialty=...
-# -------------------------
+
 @lawyers_bp.route('', methods=['GET'])
 def search_lawyers():
     specialty_q = request.args.get('specialty')
@@ -62,11 +59,6 @@ def search_lawyers():
     return jsonify(result)
 
 
-# -------------------------
-# Create Lawyer Profile (after signup)
-#   POST /lawyers/profile
-#   Body: { experience, location, court_of_practice, availability_details, v_hour, specialties: ["Criminal", ...] }
-# -------------------------
 @lawyers_bp.route('/profile', methods=['POST'])
 @role_required('Lawyer')
 def create_profile():
@@ -89,9 +81,7 @@ def create_profile():
         v_hour=data.get('v_hour')
     )
     db.session.add(profile)
-    db.session.flush()   # get profile.id before inserting specialties
-
-    # specialties: array of strings -> rows in specialties table with lawyer_id FK
+    db.session.flush()  
     names = []
     for n in data.get('specialties', []):
         if isinstance(n, str):
@@ -107,11 +97,6 @@ def create_profile():
 
 
 
-# -------------------------
-# Update Lawyer Profile (owner only)
-#   PUT /lawyers/profile/<lawyer_id>
-#   Body: any fields + optional specialties array to replace all
-# -------------------------
 @lawyers_bp.route('/profile/<int:lawyer_id>', methods=['PUT'])
 @role_required('Lawyer')
 def update_profile(lawyer_id):

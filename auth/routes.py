@@ -6,9 +6,6 @@ from flask_jwt_extended import create_access_token
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 
-# -------------------------
-# Signup
-# -------------------------
 @auth_bp.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
@@ -17,14 +14,14 @@ def signup():
     password = data.get('password')
     role = data.get('role', 'Client')  # default = Client
 
-    # Check if user already exists
+    
     if User.query.filter((User.email == email)).first():
         return jsonify({'message': 'Email already exists'}), 400
 
-    # Hash password
+   
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
-    # Create user
+    
     user = User(
         f_name=f_name,
         email=email,
@@ -34,19 +31,21 @@ def signup():
     db.session.add(user)
     db.session.commit()
 
+    
+    import json
+    identity = json.dumps({'id': user.id, 'role': user.role})
+    token = create_access_token(identity=identity)
+
     return jsonify({
         'message': 'User created successfully',
         'user_id': user.id,
-        'role': role
+        'role': role,
+        'access_token': token   # <-- added token here
     }), 201
 
 
-# -------------------------
-# Login
-# -------------------------
-# -------------------------
-# Login
-# -------------------------
+
+
 @auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
