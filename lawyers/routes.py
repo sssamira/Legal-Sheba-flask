@@ -159,3 +159,17 @@ def view_profile(lawyer_id):
         "v_hour": profile.v_hour,
         "specialties": specialties
     })
+
+
+
+@lawyers_bp.route('/profile/exists/<int:user_id>', methods=['GET'])
+def check_profile_exists(user_id):
+    """Public endpoint: return whether the given user_id (lawyer) has created a profile.
+
+    Response JSON:
+        { "has_profile": bool, "profile_id": int | None }
+    """
+    profile = LawyerProfile.query.filter_by(user_id=user_id).first()
+    if profile:
+        return jsonify({'has_profile': True, 'profile_id': profile.id})
+    return jsonify({'has_profile': False, 'profile_id': None})
