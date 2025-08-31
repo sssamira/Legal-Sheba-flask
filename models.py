@@ -43,3 +43,29 @@ class InfoHub(db.Model):
     title = db.Column(db.String(150), nullable=False)
     content = db.Column(db.Text, nullable=False)
     category = db.Column(db.String(50), nullable=False)
+
+
+class Appointment(db.Model):
+    __tablename__ = "appointments"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    client_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    lawyer_id = db.Column(db.Integer, db.ForeignKey("lawyer_profiles.id", ondelete="CASCADE"), nullable=False)
+    appointment_date = db.Column(db.String(50), nullable=False)  # ISO string (YYYY-MM-DD HH:MM)
+    status = db.Column(db.String(50), nullable=False, default='pending')  # pending / confirmed / completed / cancelled
+    problem_description = db.Column(db.Text)
+    notes = db.Column(db.Text)
+
+
+class Message(db.Model):
+    __tablename__ = "messages"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    appointment_id = db.Column(db.Integer, db.ForeignKey("appointments.id"), nullable=False)
+    sender_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    receiver_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    message_text = db.Column(db.Text)
+    file_path = db.Column(db.String(255))
+    file_type = db.Column(db.String(50))
+    timestamp = db.Column(db.String(50))  # stored as ISO string or DB datetime depending on DB
+    is_read = db.Column(db.Boolean, default=False)
