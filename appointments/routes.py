@@ -8,7 +8,7 @@ import json
 appointments_bp = Blueprint('appointments', __name__, url_prefix='/appointments')
 
 
-@appointments_bp.route('', methods=['POST'])
+@appointments_bp.route('/new', methods=['POST'])
 @role_required('Client')
 def create_appointment():
     """Client creates an appointment with a lawyer.
