@@ -3,7 +3,7 @@ from config import Config
 from extensions import db, bcrypt, jwt
 from auth.routes import auth_bp
 from lawyers.routes import lawyers_bp
-# from infohub.routes import infohub_bp
+from infohub import infohub_bp
 from appointments.routes import appointments_bp
 from flask_migrate import Migrate
 
@@ -22,7 +22,7 @@ def create_app():
     # register blueprints
     app.register_blueprint(auth_bp)
     app.register_blueprint(lawyers_bp)
-    # app.register_blueprint(infohub_bp)
+    app.register_blueprint(infohub_bp)
     app.register_blueprint(appointments_bp)
 
     return app

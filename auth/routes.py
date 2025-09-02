@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models import User
+from models import User, LawyerProfile, Specialty
 from extensions import db, bcrypt
 from flask_jwt_extended import create_access_token
 
@@ -65,5 +65,40 @@ def login():
         'access_token': token,
         'user_id': user.id,
         'role': user.role
+    })
+
+
+
+@auth_bp.route('/user/<int:user_id>', methods=['GET'])
+def view_user(user_id):
+    """Return full user info. Includes lawyer profile and specialties when present."""
+    user = User.query.get_or_404(user_id)
+
+    profile = LawyerProfile.query.filter_by(user_id=user_id).first()
+    profile_data = None
+    if profile:
+        specs = (
+            db.session.query(Specialty.name)
+            .filter(Specialty.lawyer_id == profile.id)
+            .all()
+        )
+        specialties = [s.name for s in specs]
+        profile_data = {
+            'profile_id': profile.id,
+            'experience': profile.experience,
+            'location': profile.location,
+            'court_of_practice': profile.court_of_practice,
+            'availability_details': profile.availability_details,
+            'v_hour': profile.v_hour,
+            'specialties': specialties
+        }
+
+    return jsonify({
+        'id': user.id,
+        'f_name': user.f_name,
+        'email': user.email,
+        'role': user.role,
+        'created_at': user.created_at,
+        'profile': profile_data
     })
 

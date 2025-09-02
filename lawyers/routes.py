@@ -44,10 +44,10 @@ def search_lawyers():
     result = []
     for lp, usr in rows:
         result.append({
-            "id": lp.id,                        # public-facing lawyer profile id
+            "id": lp.id,                        
             "user_id": lp.user_id,
-            "name": usr.f_name,                 # from users table
-            "email": usr.email,                 # from users table
+            "name": usr.f_name,                 
+            "email": usr.email,                 
             "experience": lp.experience,
             "location": lp.location,
             "court_of_practice": lp.court_of_practice,
@@ -173,3 +173,34 @@ def check_profile_exists(user_id):
     if profile:
         return jsonify({'has_profile': True, 'profile_id': profile.id})
     return jsonify({'has_profile': False, 'profile_id': None})
+
+
+@lawyers_bp.route('/by_user/<int:user_id>', methods=['GET'])
+def view_by_user(user_id):
+    """Return combined lawyer info given a user_id (public).
+
+    This joins `users` and `lawyer_profiles` and includes specialties.
+    """
+    profile = LawyerProfile.query.filter_by(user_id=user_id).first_or_404()
+    user = User.query.get(user_id)
+
+    specs = (
+        db.session.query(Specialty.name)
+        .filter(Specialty.lawyer_id == profile.id)
+        .all()
+    )
+    specialties = [s.name for s in specs]
+
+    return jsonify({
+        "id": profile.id,
+        "profile_id": profile.id,
+        "user_id": profile.user_id,
+        "name": user.f_name if user else None,
+        "email": user.email if user else None,
+        "experience": profile.experience,
+        "location": profile.location,
+        "court_of_practice": profile.court_of_practice,
+        "availability_details": profile.availability_details,
+        "v_hour": profile.v_hour,
+        "specialties": specialties
+    })

@@ -43,6 +43,8 @@ class InfoHub(db.Model):
     title = db.Column(db.String(150), nullable=False)
     content = db.Column(db.Text, nullable=False)
     category = db.Column(db.String(50), nullable=False)
+    # use same type as Appointment.appointment_date (string ISO) per request
+    date = db.Column(db.String(50), nullable=False)
 
 
 class Appointment(db.Model):
